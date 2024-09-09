@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mapa de Tolosa a Andoain con capas y buffer paralelo</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+<body>
+    <div id="map" style="width: 100%; height: 600px;"></div>
+    <script>
+        // Inicializar el mapa
+        var map = L.map('map').setView([43.18, -2.05], 12);
+
+        // Capas base
+        var osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+
+        var satelliteLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 19,
+            subdomains:['mt0','mt1','mt2','mt3'],
+            attribution: 'Imagery ©2023 Google'
+        });
+
+        var streetsLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            maxZoom: 19,
+            subdomains:['mt0','mt1','mt2','mt3'],
+            attribution: 'Map data ©2023 Google'
+        });
+
+        // Añadir la capa base inicial (OpenStreetMap)
+        osmLayer.addTo(map);
+
+        // Coordenadas de Tolosa y Andoain
+        var tolosa = [43.1347, -2.0783];
+        var andoain = [43.2203, -2.0275];
+
+        // Dibujar la línea entre Tolosa y Andoain
+        var linea = L.polyline([tolosa, andoain], {color: 'red'}).addTo(map);
+
+        // Crear un buffer paralelo como una banda alrededor de la línea
+        var bufferCoords = [
+            [43.129, -2.083], [43.140, -2.073], // Puntos desplazados ligeramente al oeste de la línea
+            [43.225, -2.022], [43.215, -2.032]  // Puntos desplazados al este de la línea
+        ];
+
+        var bufferParalelo = L.polygon(bufferCoords, {
+            color: 'blue',
+            fillColor: '#add8e6',
+            fillOpacity: 0.5
+        }).addTo(map);
+
+        // Capas de sobreposición (línea y buffer)
+        var overlays = {
+            "Línea Tolosa-Andoain": linea,
+            "Buffer Paralelo": bufferParalelo
+        };
+
+        // Capas base
+        var baseLayers = {
+            "OpenStreetMap": osmLayer,
+            "Satélite": satelliteLayer,
+            "Google Maps": streetsLayer
+        };
+
+        // Añadir el control de capas
+        L.control.layers(baseLayers, overlays).addTo(map);
+    </script>
+</body>
+</html>
